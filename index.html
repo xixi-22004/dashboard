@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人云台</title>
+<meta name="description" content="饮食、开销、时间管理、英语学习 - 个人云台">
+<meta name="theme-color" content="#7c3aed">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="个人云台">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
+<link rel="shortcut icon" href="favicon.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --primary:#7c3aed;
+  --primary-dark:#6d28d9;
+  --primary-light:#ede9fe;
+  --primary-50:#f5f3ff;
+  --primary-100:#ede9fe;
+  --primary-200:#ddd6fe;
+  --primary-400:#a78bfa;
+  --primary-500:#8b5cf6;
+  --primary-600:#7c3aed;
+  --bg:#f5f3ff;
+  --card:#ffffff;
+  --text:#1e1b4b;
+  --text-muted:#7c7ba4;
+  --border:#ddd6fe;
+  --success:#059669;
+  --warning:#d97706;
+  --danger:#dc2626;
+  --shadow:0 1px 3px rgba(124,58,237,.06),0 1px 2px rgba(124,58,237,.04);
+  --shadow-lg:0 10px 25px -5px rgba(124,58,237,.1),0 8px 10px -6px rgba(124,58,237,.06);
+  --radius:16px;
+  --radius-sm:10px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:linear-gradient(135deg,#f5f3ff 0%,#ede9fe 40%,#ddd6fe 100%);
+  color:var(--text);line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.app{display:flex;min-height:100vh}
+
+/* 侧边栏 - 深紫渐变 */
+.sidebar{
+  width:220px;background:linear-gradient(180deg,#5b21b6 0%,#6d28d9 50%,#7c3aed 100%);
+  padding:24px 0;position:fixed;height:100vh;display:flex;flex-direction:column;
+  z-index:10;border-right:none;
+}
+.logo{padding:0 24px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#fff}
+.logo svg{width:28px;height:28px;color:#ddd6fe}
+.nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);
+  cursor:pointer;color:rgba(255,255,255,.7);font-size:14.5px;font-weight:500;transition:all .2s;
+  border:none;background:none;text-align:left;width:100%;
+}
+.nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.nav-item.active{background:rgba(255,255,255,.2);color:#fff;font-weight:600}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.sidebar-foot{padding:16px 24px;font-size:12px;color:rgba(255,255,255,.45);border-top:1px solid rgba(255,255,255,.1)}
+
+/* 主区域 */
+.main{flex:1;margin-left:220px;padding:32px 40px;max-width:100%;overflow-x:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
+.topbar h1{font-size:26px;font-weight:800;color:var(--primary-dark)}
+.topbar .date{color:var(--text-muted);font-size:14px;margin-top:2px}
+.topbar-actions{display:flex;gap:10px}
+.btn{
+  padding:9px 16px;border-radius:var(--radius-sm);border:1px solid var(--primary-200);
+  background:var(--card);color:var(--primary-600);font-size:13.5px;font-weight:500;cursor:pointer;
+  display:inline-flex;align-items:center;gap:6px;transition:all .2s;
+}
+.btn:hover{background:var(--primary-50);border-color:var(--primary-400)}
+.btn svg{width:15px;height:15px}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border-color:transparent;font-weight:600}
+.btn-primary:hover{background:linear-gradient(135deg,#6d28d9,#5b21b6);border-color:transparent}
+.btn-sm{padding:6px 12px;font-size:12.5px}
+.btn-danger{color:var(--danger);border-color:transparent;background:transparent;padding:6px 8px}
+.btn-danger:hover{background:#fef2f2}
+
+/* 卡片 - 白色带淡紫阴影 */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px;border:1px solid rgba(221,214,254,.5)}
+.card h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--primary-dark)}
+.card h3 svg{width:18px;height:18px;color:var(--primary)}
+
+/* 表单 */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;align-items:end}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:12px;color:var(--text-muted);font-weight:600}
+.field input,.field select,.field textarea{
+  padding:10px 14px;border:1.5px solid var(--primary-200);border-radius:var(--radius-sm);
+  font-size:14px;font-family:inherit;background:var(--primary-50);color:var(--text);transition:all .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(124,58,237,.1);background:#fff}
+.field textarea{resize:vertical;min-height:38px}
+.form-actions{grid-column:1/-1;display:flex;gap:10px;margin-top:4px}
+
+/* 统计卡片 - 紫色渐变条 */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:20px}
+.stat-card{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:18px 20px;position:relative;overflow:hidden;border:1px solid rgba(221,214,254,.5);
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+  background:linear-gradient(180deg,#7c3aed,#a78bfa);
+}
+.stat-card .label{font-size:13px;color:var(--text-muted);margin-bottom:6px;display:flex;align-items:center;gap:6px;padding-left:6px}
+.stat-card .value{font-size:26px;font-weight:800;line-height:1.2;padding-left:6px;color:var(--primary-dark)}
+.stat-card .sub{font-size:12px;color:var(--text-muted);margin-top:4px;padding-left:6px}
+.stat-card .value .unit{font-size:14px;font-weight:500;color:var(--text-muted);margin-left:3px}
+
+/* 图表 */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.chart-box{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;border:1px solid rgba(221,214,254,.5)}
+.chart-box h4{font-size:14px;font-weight:700;margin-bottom:14px;color:var(--primary-dark)}
+.chart-wrap{position:relative;height:240px}
+
+/* 列表 */
+.list{list-style:none}
+.list li{
+  display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--primary-100);
+  font-size:14px;
+}
+.list li:last-child{border-bottom:none}
+.list .li-main{flex:1;min-width:0}
+.list .li-title{font-weight:600}
+.list .li-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
+.list .li-amount{font-weight:700;color:var(--primary)}
+
+/* 徽章 - 紫色系 */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600}
+.badge-meal-breakfast{background:#fef3c7;color:#92400e}
+.badge-meal-lunch{background:#dbeafe;color:#1e40af}
+.badge-meal-dinner{background:#fce7f3;color:#9d174d}
+.badge-meal-snack{background:#d1fae5;color:#065f46}
+.badge-cat{background:var(--primary-100);color:var(--primary-dark);font-weight:600}
+.badge-type-work{background:#dbeafe;color:#1e40af}
+.badge-type-fun{background:#fce7f3;color:#9d174d}
+.badge-type-sport{background:#d1fae5;color:#065f46}
+.badge-type-rest{background:#fef3c7;color:#92400e}
+.badge-status-done{background:#d1fae5;color:#065f46}
+.badge-status-doing{background:#fef3c7;color:#92400e}
+.badge-status-todo{background:var(--primary-100);color:var(--primary-600)}
+
+/* tab */
+.tabs{display:flex;gap:4px;margin-bottom:18px;border-bottom:1.5px solid var(--primary-200);flex-wrap:wrap}
+.tab{padding:10px 18px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--text-muted);border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all .2s}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.tab:hover{color:var(--primary)}
+
+/* 热力图 - 紫色渐变 */
+.heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:560px}
+.heat-cell{aspect-ratio:1;border-radius:5px;background:var(--primary-100);min-height:20px;font-size:10px;display:flex;align-items:center;justify-content:center;color:transparent;transition:all .2s;cursor:default}
+.heat-cell:hover{color:var(--text);transform:scale(1.15)}
+.heat-l1{background:#ddd6fe}.heat-l2{background:#c4b5fd}.heat-l3{background:#a78bfa}.heat-l4{background:#8b5cf6}.heat-l5{background:#7c3aed}
+
+/* 单词复习 */
+.word-review{background:var(--primary-50);border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;border:1px solid var(--primary-200)}
+.word-review .today-count{font-size:13px;color:var(--primary-dark);font-weight:700;margin-bottom:10px}
+.word-card{background:var(--card);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;border:1px solid var(--primary-100)}
+.word-card .w{font-weight:700;color:var(--primary-dark)}
+.word-card .m{color:var(--text-muted);font-size:13px;flex:1}
+
+/* 空状态 */
+.empty{text-align:center;padding:30px 10px;color:var(--text-muted);font-size:14px}
+.empty svg{width:40px;height:40px;opacity:.3;margin-bottom:8px;color:var(--primary-400)}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--primary-dark);color:#fff;padding:10px 24px;border-radius:var(--radius-sm);font-size:13.5px;box-shadow:0 8px 30px rgba(124,58,237,.4);opacity:0;transition:all .3s;z-index:100}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* page 切换 */
+.page{display:none}
+.page.active{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* 响应式 */
+.menu-toggle{display:none;position:fixed;top:16px;right:16px;z-index:20;background:var(--card);border:1px solid var(--primary-200);border-radius:var(--radius-sm);padding:8px 10px;cursor:pointer}
+.menu-toggle svg{width:20px;height:20px;color:var(--primary-dark)}
+@media(max-width:860px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s;box-shadow:0 10px 40px rgba(124,58,237,.3)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0;padding:20px 16px 80px}
+  .menu-toggle{display:block}
+  .topbar h1{font-size:20px}
+  .form-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:520px){
+  .form-grid{grid-template-columns:1fr}
+  .chart-grid{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<button class="menu-toggle" id="menuToggle" aria-label="菜单">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
+<div class="app">
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <div class="logo">
+      <span style="font-size:24px;font-weight:900;letter-spacing:-1px">H</span>
+      <span>个人云台</span>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-page="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>总览</button>
+      <button class="nav-item" data-page="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18M3 11a2 2 0 0 0 0 4h18a2 2 0 0 0 0-4M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/></svg>饮食</button>
+      <button class="nav-item" data-page="expense"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>开销</button>
+      <button class="nav-item" data-page="time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>时间</button>
+      <button class="nav-item" data-page="english"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>英语</button>
+    </nav>
+    <div class="sidebar-foot">v1.0 · 本地存储</div>
+  </aside>
+
+  <!-- 主区域 -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">总览</h1>
+        <div class="date" id="todayDate"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>导出</button>
+        <button class="btn" id="btnImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>导入</button>
+        <input type="file" id="fileInput" accept=".json" class="hidden">
+      </div>
+    </div>
+
+    <!-- 总览 -->
+    <section class="page active" id="page-overview">
+      <div class="stat-grid" id="overviewStats"></div>
+      <div class="chart-grid">
+        <div class="chart-box"><h4>近 7 天热量摄入</h4><div class="chart-wrap"><canvas id="ovDietChart"></canvas></div></div>
+        <div class="chart-box"><h4>本月开销分类</h4><div class="chart-wrap"><canvas id="ovExpenseChart"></canvas></div></div>
+        <div class="chart-box"><h4>本周时间分配</h4><div class="chart-wrap"><canvas id="ovTimeChart"></canvas></div></div>
+        <div class="chart-box"><h4>近 14 天英语学习</h4><div class="chart-wrap"><canvas id="ovEnglishChart"></canvas></div></div>
+      </div>
+    </section>
+
+    <!-- 饮食 -->
+    <section class="page" id="page-diet">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18M3 11a2 2 0 0 0 0 4h18a2 2 0 0 0 0-4"/></svg>记录饮食</h3>
+        <form class="form-grid" id="dietForm">
+          <div class="field"><label>日期</label><input type="date" name="date" required></div>
+          <div class="field"><label>餐次</label><select name="meal"><option value="breakfast">早餐</option><option value="lunch">午餐</option><option value="dinner">晚餐</option><option value="snack">加餐</option></select></div>
+          <div class="field"><label>食物</label><input type="text" name="food" placeholder="如：燕麦粥" required></div>
+          <div class="field"><label>热量 (kcal)</label><input type="number" name="calories" min="0" placeholder="可选"></div>
+          <div class="field"><label>备注</label><input type="text" name="note" placeholder="可选"></div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">添加</button></div>
+        </form>
+      </div>
+      <div class="stat-grid" id="dietStats"></div>
+      <div class="chart-grid">
+        <div class="chart-box"><h4>近 7 天每日热量</h4><div class="chart-wrap"><canvas id="dietTrendChart"></canvas></div></div>
+        <div class="chart-box"><h4>餐次占比</h4><div class="chart-wrap"><canvas id="dietMealChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <h3>饮食记录</h3>
+        <ul class="list" id="dietList"></ul>
+      </div>
+    </section>
+
+    <!-- 开销 -->
+    <section class="page" id="page-expense">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>记录开销</h3>
+        <form class="form-grid" id="expenseForm">
+          <div class="field"><label>日期</label><input type="date" name="date" required></div>
+          <div class="field"><label>金额 (元)</label><input type="number" name="amount" min="0" step="0.01" placeholder="0.00" required></div>
+          <div class="field"><label>分类</label><select name="category"><option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="娱乐">娱乐</option><option value="住房">住房</option><option value="其他">其他</option></select></div>
+          <div class="field"><label>备注</label><input type="text" name="note" placeholder="可选"></div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">添加</button></div>
+        </form>
+      </div>
+      <div class="stat-grid" id="expenseStats"></div>
+      <div class="chart-grid">
+        <div class="chart-box"><h4>本月分类占比</h4><div class="chart-wrap"><canvas id="expenseCatChart"></canvas></div></div>
+        <div class="chart-box"><h4>近 6 个月月度开销</h4><div class="chart-wrap"><canvas id="expenseTrendChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <h3>开销记录</h3>
+        <ul class="list" id="expenseList"></ul>
+      </div>
+    </section>
+
+    <!-- 时间 -->
+    <section class="page" id="page-time">
+      <div class="card">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>记录时间</h3>
+        <form class="form-grid" id="timeForm">
+          <div class="field"><label>日期</label><input type="date" name="date" required></div>
+          <div class="field"><label>类型</label><select name="type"><option value="work">工作</option><option value="fun">娱乐</option><option value="sport">运动</option><option value="rest">休息</option></select></div>
+          <div class="field"><label>时长 (小时)</label><input type="number" name="hours" min="0" step="0.5" placeholder="如：2" required></div>
+          <div class="field"><label>内容</label><input type="text" name="content" placeholder="做了什么" required></div>
+          <div class="form-actions"><button type="submit" class="btn btn-primary">添加</button></div>
+        </form>
+      </div>
+      <div class="stat-grid" id="timeStats"></div>
+      <div class="chart-grid">
+        <div class="chart-box"><h4>本周各类时长</h4><div class="chart-wrap"><canvas id="timeWeekChart"></canvas></div></div>
+        <div class="chart-box"><h4>工作 / 娱乐比例</h4><div class="chart-wrap"><canvas id="timeRatioChart"></canvas></div></div>
+      </div>
+      <div class="card">
+        <h3>时间记录</h3>
+        <ul class="list" id="timeList"></ul>
+      </div>
+    </section>
+
+    <!-- 英语 -->
+    <section class="page" id="page-english">
+      <div class="tabs" id="engTabs">
+        <button class="tab active" data-tab="words">单词本</button>
+        <button class="tab" data-tab="study">学习打卡</button>
+        <button class="tab" data-tab="practice">练习记录</button>
+      </div>
+
+      <!-- 单词本 -->
+      <div id="eng-words">
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>添加单词</h3>
+          <form class="form-grid" id="wordForm">
+            <div class="field"><label>单词</label><input type="text" name="word" placeholder="如：serendipity" required></div>
+            <div class="field"><label>释义</label><input type="text" name="meaning" placeholder="如：意外发现" required></div>
+            <div class="field"><label>例句 (可选)</label><input type="text" name="example" placeholder="可选"></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">添加</button></div>
+          </form>
+        </div>
+        <div class="word-review" id="wordReview"></div>
+        <div class="card">
+          <h3>单词库</h3>
+          <ul class="list" id="wordList"></ul>
+        </div>
+      </div>
+
+      <!-- 学习打卡 -->
+      <div id="eng-study" class="hidden">
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>记录学习</h3>
+          <form class="form-grid" id="studyForm">
+            <div class="field"><label>日期</label><input type="date" name="date" required></div>
+            <div class="field"><label>时长 (分钟)</label><input type="number" name="minutes" min="1" placeholder="如：30" required></div>
+            <div class="field"><label>类型</label><select name="type"><option value="听力">听力</option><option value="阅读">阅读</option><option value="单词">单词</option><option value="其他">其他</option></select></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">打卡</button></div>
+          </form>
+        </div>
+        <div class="stat-grid" id="studyStats"></div>
+        <div class="chart-box" style="margin-bottom:20px"><h4>近 30 天学习热力图</h4><div class="heatmap" id="studyHeatmap" style="margin-top:14px"></div></div>
+        <div class="chart-grid">
+          <div class="chart-box"><h4>近 7 天学习时长</h4><div class="chart-wrap"><canvas id="studyTrendChart"></canvas></div></div>
+          <div class="chart-box"><h4>类型占比</h4><div class="chart-wrap"><canvas id="studyTypeChart"></canvas></div></div>
+        </div>
+        <div class="card">
+          <h3>学习记录</h3>
+          <ul class="list" id="studyList"></ul>
+        </div>
+      </div>
+
+      <!-- 练习记录 -->
+      <div id="eng-practice" class="hidden">
+        <div class="card">
+          <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>添加练习</h3>
+          <form class="form-grid" id="practiceForm">
+            <div class="field"><label>日期</label><input type="date" name="date" required></div>
+            <div class="field"><label>材料标题</label><input type="text" name="title" placeholder="如：VOA 慢速" required></div>
+            <div class="field"><label>类型</label><select name="type"><option value="听力">听力</option><option value="阅读">阅读</option></select></div>
+            <div class="field"><label>状态</label><select name="status"><option value="todo">待开始</option><option value="doing">进行中</option><option value="done">已完成</option></select></div>
+            <div class="field"><label>笔记</label><input type="text" name="note" placeholder="可选"></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">添加</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <h3>练习记录</h3>
+          <ul class="list" id="practiceList"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 存储 ============ */
+const STORE_KEY='personal_dashboard_v1';
+const defaultData=()=>({diet:[],expense:[],time:[],words:[],studyLog:[],practice:[]});
+let db=load();
+function load(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||defaultData()}catch(e){return defaultData()}}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(db))}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+
+/* ============ 工具 ============ */
+const $=s=>document.querySelector(s),$$=s=>document.querySelectorAll(s);
+function today(){return new Date().toISOString().slice(0,10)}
+function fmtDate(d){const m=d.slice(5);return m.replace('-','/')}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+const MEAL_LABEL={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加餐'};
+const TYPE_LABEL={work:'工作',fun:'娱乐',sport:'运动',rest:'休息'};
+const STATUS_LABEL={todo:'待开始',doing:'进行中',done:'已完成'};
+
+/* 日期范围 */
+function last7(){const a=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(d.toISOString().slice(0,10))}return a}
+function lastN(n){const a=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(d.toISOString().slice(0,10))}return a}
+function monthOf(d){return d.slice(0,7)}
+function thisMonth(){return today().slice(0,7)}
+function weekRange(){const d=new Date();const day=d.getDay()||7;const mon=new Date(d);mon.setDate(d.getDate()-day+1);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return [mon.toISOString().slice(0,10),sun.toISOString().slice(0,10)]}
+
+/* ============ 导航 ============ */
+const PAGE_TITLE={overview:'总览',diet:'饮食',expense:'开销',time:'时间',english:'英语'};
+let currentPage='overview';
+function goPage(p){
+  currentPage=p;
+  $$('.page').forEach(el=>el.classList.toggle('active',el.id==='page-'+p));
+  $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  $('#pageTitle').textContent=PAGE_TITLE[p];
+  if(window.innerWidth<860)$('#sidebar').classList.remove('open');
+  renderAll();
+}
+$$('.nav-item').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
+$('#menuToggle').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+
+/* 英语 tab */
+$$('.tab').forEach(t=>t.addEventListener('click',()=>{
+  $$('.tab').forEach(x=>x.classList.remove('active'));t.classList.add('active');
+  const tab=t.dataset.tab;
+  $('#eng-words').classList.toggle('hidden',tab!=='words');
+  $('#eng-study').classList.toggle('hidden',tab!=='study');
+  $('#eng-practice').classList.toggle('hidden',tab!=='practice');
+  renderEnglish();
+}));
+
+/* ============ 导入导出 ============ */
+$('#btnExport').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`dashboard-backup-${today()}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+  toast('已导出备份文件');
+});
+$('#btnImport').addEventListener('click',()=>$('#fileInput').click());
+$('#fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!data.diet&&!data.expense&&!data.time)throw 0;
+      if(confirm('导入将覆盖现有数据，确定继续？')){
+        db=Object.assign(defaultData(),data);
+        save();renderAll();toast('导入成功');
+      }
+    }catch(err){toast('文件格式错误')}
+    e.target.value='';
+  };
+  r.readAsText(f);
+});
+
+/* ============ 图表实例缓存 ============ */
+const charts={};
+function destroyChart(k){if(charts[k]){charts[k].destroy();delete charts[k]}}
+const CHART_COLORS=['#7c3aed','#a78bfa','#8b5cf6','#c4b5fd','#6d28d9','#ddd6fe','#5b21b6'];
+
+/* ============ 饮食 ============ */
+$('#dietForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  const o={id:uid(),date:f.get('date'),meal:f.get('meal'),food:f.get('food').trim(),
+    calories:f.get('calories')?+f.get('calories'):null,note:f.get('note').trim()};
+  db.diet.push(o);save();e.target.reset();setTodayInputs();renderDiet();toast('已记录饮食');
+});
+function renderDiet(){
+  // stats
+  const todayD=db.diet.filter(x=>x.date===today());
+  const todayCal=todayD.reduce((s,x)=>s+(x.calories||0),0);
+  const week7=last7();
+  const weekCal=db.diet.filter(x=>week7.includes(x.date)).reduce((s,x)=>s+(x.calories||0),0);
+  $('#dietStats').innerHTML=`
+    <div class="stat-card"><div class="label">今日记录</div><div class="value">${todayD.length}<span class="unit">条</span></div></div>
+    <div class="stat-card"><div class="label">今日热量</div><div class="value">${todayCal}<span class="unit">kcal</span></div></div>
+    <div class="stat-card"><div class="label">近 7 天热量</div><div class="value">${weekCal}<span class="unit">kcal</span></div></div>`;
+  // list
+  const list=[...db.diet].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  $('#dietList').innerHTML=list.length?list.map(x=>`
+    <li><span class="badge badge-meal-${x.meal}">${MEAL_LABEL[x.meal]}</span>
+      <div class="li-main"><div class="li-title">${esc(x.food)}${x.calories?` · ${x.calories} kcal`:''}</div>
+      <div class="li-meta">${x.date}${x.note?' · '+esc(x.note):''}</div></div>
+      <button class="btn btn-danger" onclick="delItem('diet','${x.id}')">删除</button></li>`).join('')
+    :emptyHTML('还没有饮食记录');
+  // charts
+  const trend=last7().map(d=>db.diet.filter(x=>x.date===d).reduce((s,x)=>s+(x.calories||0),0));
+  destroyChart('dietTrend');destroyChart('dietMeal');
+  charts.dietTrend=new Chart($('#dietTrendChart'),{type:'line',data:{labels:last7().map(fmtDate),datasets:[{data:trend,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.1)',fill:true,tension:.35}]},options:chartOpt()});
+  const meals=['breakfast','lunch','dinner','snack'];
+  const mealData=meals.map(m=>db.diet.filter(x=>x.meal===m).length);
+  charts.dietMeal=new Chart($('#dietMealChart'),{type:'doughnut',data:{labels:meals.map(m=>MEAL_LABEL[m]),datasets:[{data:mealData,backgroundColor:CHART_COLORS}]},options:chartOpt(true)});
+}
+
+/* ============ 开销 ============ */
+$('#expenseForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  db.expense.push({id:uid(),date:f.get('date'),amount:+f.get('amount'),category:f.get('category'),note:f.get('note').trim()});
+  save();e.target.reset();setTodayInputs();renderExpense();toast('已记录开销');
+});
+function renderExpense(){
+  const m=thisMonth();
+  const monthE=db.expense.filter(x=>monthOf(x.date)===m);
+  const total=monthE.reduce((s,x)=>s+x.amount,0);
+  const avg=monthE.length?total/new Date().getDate():0;
+  const max=monthE.length?Math.max(...monthE.map(x=>x.amount)):0;
+  $('#expenseStats').innerHTML=`
+    <div class="stat-card"><div class="label">本月支出</div><div class="value">¥${total.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="label">日均支出</div><div class="value">¥${avg.toFixed(2)}</div></div>
+    <div class="stat-card"><div class="label">最大单笔</div><div class="value">¥${max.toFixed(2)}</div></div>`;
+  const list=[...db.expense].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  $('#expenseList').innerHTML=list.length?list.map(x=>`
+    <li><span class="badge badge-cat">${x.category}</span>
+      <div class="li-main"><div class="li-title">${esc(x.note)||x.category}</div><div class="li-meta">${x.date}</div></div>
+      <span class="li-amount">¥${x.amount.toFixed(2)}</span>
+      <button class="btn btn-danger" onclick="delItem('expense','${x.id}')">删除</button></li>`).join('')
+    :emptyHTML('还没有开销记录');
+  // 本月分类
+  const cats=['餐饮','交通','购物','娱乐','住房','其他'];
+  const catData=cats.map(c=>db.expense.filter(x=>x.category===c&&monthOf(x.date)===m).reduce((s,x)=>s+x.amount,0));
+  destroyChart('expenseCat');destroyChart('expenseTrend');
+  charts.expenseCat=new Chart($('#expenseCatChart'),{type:'pie',data:{labels:cats,datasets:[{data:catData,backgroundColor:CHART_COLORS}]},options:chartOpt(true)});
+  // 近6月
+  const months=[];for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);months.push(d.toISOString().slice(0,7))}
+  const monthData=months.map(mo=>db.expense.filter(x=>monthOf(x.date)===mo).reduce((s,x)=>s+x.amount,0));
+  charts.expenseTrend=new Chart($('#expenseTrendChart'),{type:'bar',data:{labels:months.map(m=>m.slice(5)+'月'),datasets:[{data:monthData,backgroundColor:'#7c3aed',borderRadius:6}]},options:chartOpt()});
+}
+
+/* ============ 时间 ============ */
+$('#timeForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  db.time.push({id:uid(),date:f.get('date'),type:f.get('type'),hours:+f.get('hours'),content:f.get('content').trim()});
+  save();e.target.reset();setTodayInputs();renderTime();toast('已记录时间');
+});
+function renderTime(){
+  const [ws,we]=weekRange();
+  const weekT=db.time.filter(x=>x.date>=ws&&x.date<=we);
+  const workH=weekT.filter(x=>x.type==='work').reduce((s,x)=>s+x.hours,0);
+  const funH=weekT.filter(x=>x.type==='fun').reduce((s,x)=>s+x.hours,0);
+  const ratio=funH>0?(workH/funH).toFixed(2):'—';
+  $('#timeStats').innerHTML=`
+    <div class="stat-card"><div class="label">本周工作</div><div class="value">${workH}<span class="unit">h</span></div></div>
+    <div class="stat-card"><div class="label">本周娱乐</div><div class="value">${funH}<span class="unit">h</span></div></div>
+    <div class="stat-card"><div class="label">工作/娱乐</div><div class="value">${ratio}</div><div class="sub">建议保持 2~4</div></div>`;
+  const list=[...db.time].sort((a,b)=>b.date.localeCompare(a.date)||b.id.localeCompare(a.id));
+  $('#timeList').innerHTML=list.length?list.map(x=>`
+    <li><span class="badge badge-type-${x.type}">${TYPE_LABEL[x.type]}</span>
+      <div class="li-main"><div class="li-title">${esc(x.content)}</div><div class="li-meta">${x.date}</div></div>
+      <span class="li-amount">${x.hours}h</span>
+      <button class="btn btn-danger" onclick="delItem('time','${x.id}')">删除</button></li>`).join('')
+    :emptyHTML('还没有时间记录');
+  // 本周堆叠
+  const [w1,w2]=weekRange();
+  const days=[];for(let d=new Date(w1);d<=new Date(w2);d.setDate(d.getDate()+1)){days.push(d.toISOString().slice(0,10))}
+  const types=['work','fun','sport','rest'];
+  const colors={work:'#3b82f6',fun:'#ec4899',sport:'#10b981',rest:'#f59e0b'};
+  destroyChart('timeWeek');destroyChart('timeRatio');
+  const datasets=types.map(t=>({label:TYPE_LABEL[t],data:days.map(d=>db.time.filter(x=>x.date===d&&x.type===t).reduce((s,x)=>s+x.hours,0)),backgroundColor:colors[t],borderRadius:4}));
+  charts.timeWeek=new Chart($('#timeWeekChart'),{type:'bar',data:{labels:days.map(fmtDate),datasets},options:{...chartOpt(),scales:{x:{stacked:true},y:{stacked:true}}}});
+  const weekAll=weekT.reduce((s,x)=>s+x.hours,0);
+  charts.timeRatio=new Chart($('#timeRatioChart'),{type:'doughnut',data:{labels:['工作','娱乐','运动','休息'],datasets:[{data:types.map(t=>weekT.filter(x=>x.type===t).reduce((s,x)=>s+x.hours,0)),backgroundColor:Object.values(colors)}]},options:chartOpt(true)});
+}
+
+/* ============ 英语 ============ */
+const REVIEW_INTERVALS=[1,2,4,7,15]; // 艾宾浩斯天数
+$('#wordForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  const word=f.get('word').trim();
+  if(db.words.some(w=>w.word.toLowerCase()===word.toLowerCase())){toast('单词已存在');return}
+  const now=new Date();
+  db.words.push({id:uid(),word,meaning:f.get('meaning').trim(),example:f.get('example').trim(),createdAt:today(),reviewStage:0,nextReview:addDays(today(),1)});
+  save();e.target.reset();renderEnglish();toast('已添加单词');
+});
+function addDays(dateStr,n){const d=new Date(dateStr);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function reviewWord(id,known){
+  const w=db.words.find(x=>x.id===id);if(!w)return;
+  if(known){w.reviewStage=Math.min(w.reviewStage+1,REVIEW_INTERVALS.length-1);
+    w.nextReview=addDays(today(),REVIEW_INTERVALS[w.reviewStage]);}
+  else{w.reviewStage=Math.max(0,w.reviewStage-1);w.nextReview=addDays(today(),1);}
+  save();renderEnglish();
+}
+$('#studyForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  db.studyLog.push({id:uid(),date:f.get('date'),minutes:+f.get('minutes'),type:f.get('type')});
+  save();e.target.reset();setTodayInputs();renderEnglish();toast('已打卡');
+});
+$('#practiceForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  db.practice.push({id:uid(),date:f.get('date'),title:f.get('title').trim(),type:f.get('type'),status:f.get('status'),note:f.get('note').trim()});
+  save();e.target.reset();setTodayInputs();renderEnglish();toast('已添加练习');
+});
+function renderEnglish(){
+  // 单词
+  const todayReview=db.words.filter(w=>w.nextReview<=today());
+  $('#wordReview').innerHTML=todayReview.length?`
+    <div class="today-count">今日待复习：${todayReview.length} 个</div>
+    ${todayReview.map(w=>`<div class="word-card"><div><div class="w">${esc(w.word)}</div><div class="m">${esc(w.meaning)}</div></div>
+      <button class="btn btn-sm btn-primary" onclick="reviewWord('${w.id}',true)">记得</button>
+      <button class="btn btn-sm" onclick="reviewWord('${w.id}',false)">模糊</button></div>`).join('')}`
+    :`<div class="today-count" style="color:#059669">✓ 今日无待复习单词</div>`;
+  const words=[...db.words].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  $('#wordList').innerHTML=words.length?words.map(w=>`
+    <li><div class="li-main"><div class="li-title">${esc(w.word)} <span style="color:var(--text-muted);font-weight:400">— ${esc(w.meaning)}</span></div>
+    <div class="li-meta">添加：${w.createdAt} · 下次复习：${w.nextReview} · 第${w.reviewStage+1}轮</div></div>
+    <button class="btn btn-danger" onclick="delItem('words','${w.id}')">删除</button></li>`).join('')
+    :emptyHTML('单词库为空');
+  // 学习打卡
+  const streak=calcStreak();
+  const week7=last7();
+  const weekMin=db.studyLog.filter(x=>week7.includes(x.date)).reduce((s,x)=>s+x.minutes,0);
+  const totalMin=db.studyLog.reduce((s,x)=>s+x.minutes,0);
+  $('#studyStats').innerHTML=`
+    <div class="stat-card"><div class="label">连续打卡</div><div class="value">${streak}<span class="unit">天</span></div></div>
+    <div class="stat-card"><div class="label">本周学习</div><div class="value">${(weekMin/60).toFixed(1)}<span class="unit">h</span></div></div>
+    <div class="stat-card"><div class="label">累计学习</div><div class="value">${(totalMin/60).toFixed(1)}<span class="unit">h</span></div></div>`;
+  // 热力图 30天
+  const days30=lastN(30);
+  $('#studyHeatmap').innerHTML=days30.map(d=>{
+    const min=db.studyLog.filter(x=>x.date===d).reduce((s,x)=>s+x.minutes,0);
+    let lv='';if(min>=60)lv='heat-l5';else if(min>=40)lv='heat-l4';else if(min>=20)lv='heat-l3';else if(min>=10)lv='heat-l2';else if(min>0)lv='heat-l1';
+    return `<div class="heat-cell ${lv}" title="${d}: ${min}分钟">${min||''}</div>`;
+  }).join('');
+  // 趋势 + 类型
+  destroyChart('studyTrend');destroyChart('studyType');
+  const trend=week7.map(d=>db.studyLog.filter(x=>x.date===d).reduce((s,x)=>s+x.minutes,0));
+  charts.studyTrend=new Chart($('#studyTrendChart'),{type:'bar',data:{labels:week7.map(fmtDate),datasets:[{data:trend,backgroundColor:'#7c3aed',borderRadius:6}]},options:chartOpt()});
+  const types=['听力','阅读','单词','其他'];
+  const typeData=types.map(t=>db.studyLog.filter(x=>x.type===t).reduce((s,x)=>s+x.minutes,0));
+  charts.studyType=new Chart($('#studyTypeChart'),{type:'doughnut',data:{labels:types,datasets:[{data:typeData,backgroundColor:CHART_COLORS}]},options:chartOpt(true)});
+  const slist=[...db.studyLog].sort((a,b)=>b.date.localeCompare(a.date));
+  $('#studyList').innerHTML=slist.length?slist.map(x=>`
+    <li><span class="badge badge-cat">${x.type}</span>
+      <div class="li-main"><div class="li-title">学习 ${x.minutes} 分钟</div><div class="li-meta">${x.date}</div></div>
+      <button class="btn btn-danger" onclick="delItem('studyLog','${x.id}')">删除</button></li>`).join('')
+    :emptyHTML('还没有学习记录');
+  // 练习
+  const plist=[...db.practice].sort((a,b)=>b.date.localeCompare(a.date));
+  $('#practiceList').innerHTML=plist.length?plist.map(x=>`
+    <li><span class="badge badge-cat">${x.type}</span><span class="badge badge-status-${x.status}">${STATUS_LABEL[x.status]}</span>
+      <div class="li-main"><div class="li-title">${esc(x.title)}</div><div class="li-meta">${x.date}${x.note?' · '+esc(x.note):''}</div></div>
+      <button class="btn btn-danger" onclick="delItem('practice','${x.id}')">删除</button></li>`).join('')
+    :emptyHTML('还没有练习记录');
+}
+function calcStreak(){
+  const days=[...new Set(db.studyLog.map(x=>x.date))].sort().reverse();
+  if(!days.length)return 0;
+  let streak=0;let d=new Date(today());
+  // 若今天没学，从昨天开始算
+  if(!days.includes(today()))d.setDate(d.getDate()-1);
+  while(days.includes(d.toISOString().slice(0,10))){streak++;d.setDate(d.getDate()-1)}
+  return streak;
+}
+
+/* ============ 总览 ============ */
+function renderOverview(){
+  const todayD=db.diet.filter(x=>x.date===today());
+  const todayCal=todayD.reduce((s,x)=>s+(x.calories||0),0);
+  const monthE=db.expense.filter(x=>monthOf(x.date)===thisMonth());
+  const monthTotal=monthE.reduce((s,x)=>s+x.amount,0);
+  const [ws,we]=weekRange();
+  const weekT=db.time.filter(x=>x.date>=ws&&x.date<=we);
+  const workH=weekT.filter(x=>x.type==='work').reduce((s,x)=>s+x.hours,0);
+  const streak=calcStreak();
+  $('#overviewStats').innerHTML=`
+    <div class="stat-card"><div class="label">🍽 今日热量</div><div class="value">${todayCal}<span class="unit">kcal</span></div><div class="sub">今日 ${todayD.length} 条记录</div></div>
+    <div class="stat-card"><div class="label">💰 本月开销</div><div class="value">¥${monthTotal.toFixed(2)}</div><div class="sub">${monthE.length} 笔</div></div>
+    <div class="stat-card"><div class="label">⏱ 本周工作</div><div class="value">${workH}<span class="unit">h</span></div><div class="sub">本周共 ${weekT.length} 条</div></div>
+    <div class="stat-card"><div class="label">📖 英语打卡</div><div class="value">${streak}<span class="unit">天</span></div><div class="sub">单词库 ${db.words.length} 个</div></div>`;
+  // 4 mini charts
+  destroyChart('ovDiet');destroyChart('ovExpense');destroyChart('ovTime');destroyChart('ovEnglish');
+  const d7=last7().map(d=>db.diet.filter(x=>x.date===d).reduce((s,x)=>s+(x.calories||0),0));
+  charts.ovDiet=new Chart($('#ovDietChart'),{type:'line',data:{labels:last7().map(fmtDate),datasets:[{data:d7,borderColor:'#7c3aed',backgroundColor:'rgba(124,58,237,.1)',fill:true,tension:.35}]},options:chartOpt()});
+  const cats=['餐饮','交通','购物','娱乐','住房','其他'];
+  const catData=cats.map(c=>db.expense.filter(x=>x.category===c&&monthOf(x.date)===thisMonth()).reduce((s,x)=>s+x.amount,0));
+  charts.ovExpense=new Chart($('#ovExpenseChart'),{type:'doughnut',data:{labels:cats,datasets:[{data:catData,backgroundColor:CHART_COLORS}]},options:chartOpt(true)});
+  const types=['work','fun','sport','rest'];
+  const colors={work:'#3b82f6',fun:'#ec4899',sport:'#10b981',rest:'#f59e0b'};
+  const datasets=types.map(t=>({label:TYPE_LABEL[t],data:last7().map(d=>db.time.filter(x=>x.date===d&&x.type===t).reduce((s,x)=>s+x.hours,0)),backgroundColor:colors[t],borderRadius:4}));
+  charts.ovTime=new Chart($('#ovTimeChart'),{type:'bar',data:{labels:last7().map(fmtDate),datasets},options:{...chartOpt(),scales:{x:{stacked:true},y:{stacked:true}}}});
+  const d14=lastN(14).map(d=>db.studyLog.filter(x=>x.date===d).reduce((s,x)=>s+x.minutes,0));
+  charts.ovEnglish=new Chart($('#ovEnglishChart'),{type:'bar',data:{labels:lastN(14).map(fmtDate),datasets:[{data:d14,backgroundColor:'#7c3aed',borderRadius:4}]},options:chartOpt()});
+}
+
+/* ============ 公共 ============ */
+function delItem(type,id){
+  if(!confirm('确定删除？'))return;
+  db[type]=db[type].filter(x=>x.id!==id);
+  save();renderAll();toast('已删除');
+}
+function esc(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function emptyHTML(text){return `<li class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><div>${text}</div></li>`}
+function chartOpt(legend=false){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:legend,position:'bottom',labels:{padding:14,font:{size:12},color:'#7c7ba4'}}},scales:legend?{}:{x:{grid:{display:false},ticks:{color:'#7c7ba4'}},y:{grid:{color:'#ddd6fe'},ticks:{color:'#7c7ba4'}}}}}
+function setTodayInputs(){$$('input[type=date]').forEach(i=>{if(!i.value)i.value=today()})}
+function renderAll(){
+  renderOverview();renderDiet();renderExpense();renderTime();renderEnglish();
+}
+
+/* 初始化 */
+$('#todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+setTodayInputs();
+renderAll();
+
+// 注册 Service Worker（离线缓存支持）
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').then(()=>console.log('SW 已注册')).catch(()=>{});
+}
+</script>
+</body>
+</html>
