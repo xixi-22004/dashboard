@@ -48,29 +48,37 @@ body{
   color:var(--text);line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
-.app{display:flex;min-height:100vh}
-
-/* 侧边栏 - 深紫渐变 */
-.sidebar{
-  width:220px;background:var(--card);border-right:1px solid var(--primary-100);
-  padding:24px 0;position:fixed;height:100vh;display:flex;flex-direction:column;
-  z-index:10;
+/* 底部导航 */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--primary-100);
+  display:flex;justify-content:space-around;align-items:flex-end;
+  padding:6px 12px max(6px, env(safe-area-inset-bottom));
+  box-shadow:0 -4px 20px rgba(124,58,237,.08);
 }
-.logo{padding:0 24px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--primary-dark)}
-.logo svg{width:28px;height:28px;color:var(--primary)}
-.nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
-.nav-item{
-  display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);
-  cursor:pointer;color:var(--text-muted);font-size:14.5px;font-weight:500;transition:all .2s;
-  border:none;background:none;text-align:left;width:100%;
+.bottom-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:8px 14px 4px;cursor:pointer;border:none;background:none;
+  color:var(--text-muted);font-size:10.5px;font-weight:500;transition:all .2s;
+  border-radius:10px;min-width:56px;
 }
-.nav-item:hover{background:var(--primary-50);color:var(--primary)}
-.nav-item.active{background:var(--primary);color:#fff;font-weight:600}
-.nav-item svg{width:18px;height:18px;flex-shrink:0}
-.sidebar-foot{padding:16px 24px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--primary-100)}
+.bottom-item svg{width:22px;height:22px}
+.bottom-item.active{color:var(--primary)}
+.bottom-center{
+  position:relative;top:-18px;
+  background:linear-gradient(135deg,#7c3aed,#6d28d9);
+  color:#fff!important;border-radius:50%;width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(124,58,237,.4);
+  padding:0;min-width:52px;
+}
+.bottom-center svg{width:24px;height:24px;color:#fff}
+.bottom-center.active{color:#fff;background:linear-gradient(135deg,#6d28d9,#5b21b6)}
 
 /* 主区域 */
-.main{flex:1;margin-left:220px;padding:32px 40px;max-width:100%;overflow-x:hidden}
+.main{margin-left:0;padding:32px 24px 100px;max-width:100%;overflow-x:hidden}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px}
 .topbar h1{font-size:26px;font-weight:800;color:var(--primary-dark)}
 .topbar .date{color:var(--text-muted);font-size:14px;margin-top:2px}
@@ -177,7 +185,7 @@ body{
 .empty svg{width:40px;height:40px;opacity:.3;margin-bottom:8px;color:var(--primary-400)}
 
 /* toast */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--primary-dark);color:#fff;padding:10px 24px;border-radius:var(--radius-sm);font-size:13.5px;box-shadow:0 8px 30px rgba(124,58,237,.4);opacity:0;transition:all .3s;z-index:100}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--primary-dark);color:#fff;padding:10px 24px;border-radius:var(--radius-sm);font-size:13.5px;box-shadow:0 8px 30px rgba(124,58,237,.4);opacity:0;transition:all .3s;z-index:100}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 
 /* page 切换 */
@@ -186,13 +194,8 @@ body{
 @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 /* 响应式 */
-.menu-toggle{display:none;position:fixed;top:16px;right:16px;z-index:20;background:var(--card);border:1px solid var(--primary-200);border-radius:var(--radius-sm);padding:8px 10px;cursor:pointer}
-.menu-toggle svg{width:20px;height:20px;color:var(--primary-dark)}
 @media(max-width:860px){
-  .sidebar{transform:translateX(-100%);transition:transform .3s;box-shadow:0 10px 40px rgba(124,58,237,.3)}
-  .sidebar.open{transform:none}
-  .main{margin-left:0;padding:20px 16px 80px}
-  .menu-toggle{display:block}
+  .main{padding:16px 14px 100px}
   .topbar h1{font-size:20px}
   .form-grid{grid-template-columns:1fr 1fr}
 }
@@ -200,6 +203,9 @@ body{
   .form-grid{grid-template-columns:1fr}
   .chart-grid{grid-template-columns:1fr}
   .stat-grid{grid-template-columns:1fr 1fr}
+  .bottom-item{min-width:44px;padding:6px 8px 4px;font-size:9.5px}
+  .bottom-item svg{width:20px;height:20px}
+  .bottom-center{width:46px;height:46px;min-width:46px;top:-14px}
 }
 .hidden{display:none!important}
 
@@ -222,26 +228,7 @@ body{
 </style>
 </head>
 <body>
-<button class="menu-toggle" id="menuToggle" aria-label="菜单">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-</button>
 <div class="app">
-  <!-- 侧边栏 -->
-  <aside class="sidebar" id="sidebar">
-    <div class="logo">
-      <span style="font-size:24px;font-weight:900;letter-spacing:-1px">H</span>
-      <span>个人云台</span>
-    </div>
-    <nav class="nav" id="nav">
-      <button class="nav-item active" data-page="overview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>总览</button>
-      <button class="nav-item" data-page="diet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18M3 11a2 2 0 0 0 0 4h18a2 2 0 0 0 0-4M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/></svg>饮食</button>
-      <button class="nav-item" data-page="expense"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>开销</button>
-      <button class="nav-item" data-page="time"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>时间</button>
-      <button class="nav-item" data-page="english"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>英语</button>
-    </nav>
-    <div class="sidebar-foot">v1.0 · 本地存储</div>
-  </aside>
-
   <!-- 主区域 -->
   <main class="main">
     <div class="topbar">
@@ -343,6 +330,7 @@ body{
         <button class="tab active" data-tab="words">单词本</button>
         <button class="tab" data-tab="study">学习打卡</button>
         <button class="tab" data-tab="practice">练习记录</button>
+        <button class="tab" data-tab="exam">真题</button>
       </div>
 
       <!-- 单词本 -->
@@ -404,8 +392,50 @@ body{
           <ul class="list" id="practiceList"></ul>
         </div>
       </div>
+
+      <!-- 真题 -->
+      <div id="eng-exam" class="hidden">
+        <div class="card">
+          <h3>📋 雅思真题库</h3>
+          <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px">2024-2025 年剑桥雅思真题 · 标记完成状态</p>
+          <ul class="list" id="examList"></ul>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <h3>我的真题笔记</h3>
+          <form class="form-grid" id="examNoteForm">
+            <div class="field"><label>日期</label><input type="date" name="date" required></div>
+            <div class="field"><label>真题标题</label><input type="text" name="title" placeholder="如：Cambridge 18 Test 1" required></div>
+            <div class="field"><label>状态</label><select name="status"><option value="todo">待开始</option><option value="doing">进行中</option><option value="done">已完成</option></select></div>
+            <div class="field"><label>笔记</label><input type="text" name="note" placeholder="如：阅读错3题"></div>
+            <div class="form-actions"><button type="submit" class="btn btn-primary">保存</button></div>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
+  <!-- 底部导航 -->
+  <nav class="bottom-bar" id="bottomBar">
+    <button class="bottom-item" data-page="expense">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>开销</span>
+    </button>
+    <button class="bottom-item" data-page="diet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11h18M3 11a2 2 0 0 0 0 4h18a2 2 0 0 0 0-4M5 11V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v4"/></svg>
+      <span>饮食</span>
+    </button>
+    <button class="bottom-item bottom-center active" data-page="overview">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>总览</span>
+    </button>
+    <button class="bottom-item" data-page="time">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span>时间</span>
+    </button>
+    <button class="bottom-item" data-page="english">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <span>英语</span>
+    </button>
+  </nav>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -413,7 +443,7 @@ body{
 <script>
 /* ============ 存储 ============ */
 const STORE_KEY='personal_dashboard_v1';
-const defaultData=()=>({diet:[],expense:[],time:[],words:[],studyLog:[],practice:[]});
+const defaultData=()=>({diet:[],expense:[],time:[],words:[],studyLog:[],practice:[],examNotes:[]});
 let db=load();
 function load(){try{return JSON.parse(localStorage.getItem(STORE_KEY))||defaultData()}catch(e){return defaultData()}}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(db))}
@@ -428,6 +458,506 @@ const MEAL_LABEL={breakfast:'早餐',lunch:'午餐',dinner:'晚餐',snack:'加�
 const TYPE_LABEL={work:'工作',fun:'娱乐',sport:'运动',rest:'休息'};
 const STATUS_LABEL={todo:'待开始',doing:'进行中',done:'已完成'};
 
+const IELTS_WORDS=[
+  {word:"abandon",meaning:"放弃，抛弃",example:"They had to abandon the plan due to bad weather."},
+  {word:"abstract",meaning:"抽象的；摘要",example:"The concept is too abstract for beginners."},
+  {word:"academic",meaning:"学术的",example:"She published several academic papers."},
+  {word:"access",meaning:"进入；通道；使用权",example:"Students have access to the online library."},
+  {word:"accommodate",meaning:"容纳；适应",example:"The hotel can accommodate 200 guests."},
+  {word:"accompany",meaning:"陪伴；伴随",example:"She will accompany me to the meeting."},
+  {word:"accumulate",meaning:"积累",example:"Dust tends to accumulate in unused rooms."},
+  {word:"accurate",meaning:"准确的",example:"The data must be accurate for the experiment."},
+  {word:"achieve",meaning:"实现；达到",example:"She worked hard to achieve her goals."},
+  {word:"acknowledge",meaning:"承认；感谢",example:"He acknowledged his mistake publicly."},
+  {word:"acquire",meaning:"获得；习得",example:"Children acquire language naturally."},
+  {word:"adapt",meaning:"适应；改编",example:"Animals adapt to their environment."},
+  {word:"adequate",meaning:"充足的；适当的",example:"The supply is adequate for our needs."},
+  {word:"adjust",meaning:"调整；适应",example:"You need to adjust the settings."},
+  {word:"administration",meaning:"管理；行政",example:"The administration announced new policies."},
+  {word:"adolescent",meaning:"青少年",example:"Adolescent behavior can be unpredictable."},
+  {word:"advocate",meaning:"提倡；拥护者",example:"She is a strong advocate for education."},
+  {word:"affect",meaning:"影响",example:"The weather can affect your mood."},
+  {word:"aggregate",meaning:"总计；集合",example:"The aggregate score determines the winner."},
+  {word:"allocate",meaning:"分配",example:"We need to allocate resources wisely."},
+  {word:"alternative",meaning:"替代的；选择",example:"We need to find an alternative solution."},
+  {word:"ambiguous",meaning:"模棱两可的",example:"The contract language is ambiguous."},
+  {word:"analyze",meaning:"分析",example:"We need to analyze the data carefully."},
+  {word:"annual",meaning:"年度的",example:"The annual report shows growth."},
+  {word:"anticipate",meaning:"预期；预料",example:"We anticipate a busy season ahead."},
+  {word:"apparent",meaning:"明显的",example:"The problem became apparent quickly."},
+  {word:"approach",meaning:"方法；接近",example:"We need a new approach to this issue."},
+  {word:"appropriate",meaning:"适当的",example:"Is this appropriate for the occasion?"},
+  {word:"approximate",meaning:"大约的",example:"The approximate cost is $500."},
+  {word:"arbitrary",meaning:"任意的；武断的",example:"The decision seemed arbitrary."},
+  {word:"aspect",meaning:"方面",example:"Every aspect of the plan was reviewed."},
+  {word:"assemble",meaning:"组装；集合",example:"They assemble furniture for a living."},
+  {word:"assess",meaning:"评估",example:"Teachers assess students regularly."},
+  {word:"assign",meaning:"分配；指派",example:"The manager will assign tasks."},
+  {word:"assist",meaning:"协助",example:"Can you assist me with this?"},
+  {word:"assume",meaning:"假设；承担",example:"Don't assume the answer is obvious."},
+  {word:"attain",meaning:"达到；获得",example:"She hopes to attain a high score."},
+  {word:"attribute",meaning:"属性；归因于",example:"They attribute success to hard work."},
+  {word:"authority",meaning:"权威；当局",example:"The local authority approved the plan."},
+  {word:"automatic",meaning:"自动的",example:"The system is fully automatic."},
+  {word:"available",meaning:"可用的",example:"Is this seat available?"},
+  {word:"aware",meaning:"意识到的",example:"Are you aware of the risks?"},
+  {word:"barrier",meaning:"障碍",example:"Language can be a barrier."},
+  {word:"benefit",meaning:"好处；受益",example:"Exercise has many health benefits."},
+  {word:"bias",meaning:"偏见",example:"The article shows political bias."},
+  {word:"bond",meaning:"纽带；债券",example:"There is a strong bond between them."},
+  {word:"brief",meaning:"简短的",example:"Please give a brief introduction."},
+  {word:"bulk",meaning:"大量；体积",example:"We buy in bulk to save money."},
+  {word:"capable",meaning:"有能力的",example:"She is capable of leading the team."},
+  {word:"category",meaning:"类别",example:"This falls into a different category."},
+  {word:"cease",meaning:"停止",example:"The noise suddenly ceased."},
+  {word:"challenge",meaning:"挑战",example:"This is a real challenge."},
+  {word:"circumstance",meaning:"情况；环境",example:"Under the circumstances, we agreed."},
+  {word:"cite",meaning:"引用",example:"Please cite your sources."},
+  {word:"clarify",meaning:"澄清",example:"Let me clarify my point."},
+  {word:"classic",meaning:"经典的",example:"It's a classic example of the genre."},
+  {word:"coherent",meaning:"连贯的",example:"Your argument should be coherent."},
+  {word:"collapse",meaning:"倒塌；崩溃",example:"The building could collapse."},
+  {word:"colleague",meaning:"同事",example:"My colleague will handle this."},
+  {word:"commence",meaning:"开始",example:"The ceremony will commence at noon."},
+  {word:"comment",meaning:"评论",example:"Do you have any comment?"},
+  {word:"commission",meaning:"委员会；佣金",example:"The commission will investigate."},
+  {word:"commit",meaning:"承诺；犯罪",example:"We commit to quality service."},
+  {word:"communicate",meaning:"沟通",example:"We need to communicate better."},
+  {word:"community",meaning:"社区",example:"The local community supports us."},
+  {word:"compatible",meaning:"兼容的",example:"Are these systems compatible?"},
+  {word:"compensate",meaning:"补偿",example:"We will compensate you for the loss."},
+  {word:"compile",meaning:"编译；汇编",example:"Please compile the report."},
+  {word:"complement",meaning:"补充",example:"The wine complements the meal."},
+  {word:"complex",meaning:"复杂的",example:"It's a complex problem."},
+  {word:"component",meaning:"组成部分",example:"Each component must be tested."},
+  {word:"comprehensive",meaning:"全面的",example:"We need a comprehensive review."},
+  {word:"concentrate",meaning:"集中；专注",example:"Concentrate on your studies."},
+  {word:"concept",meaning:"概念",example:"The concept is easy to understand."},
+  {word:"conclude",meaning:"总结；得出结论",example:"We can conclude that it works."},
+  {word:"conduct",meaning:"进行；行为",example:"They conduct research regularly."},
+  {word:"conference",meaning:"会议",example:"The conference starts tomorrow."},
+  {word:"confine",meaning:"限制",example:"Don't confine yourself to one idea."},
+  {word:"confirm",meaning:"确认",example:"Please confirm your attendance."},
+  {word:"conflict",meaning:"冲突",example:"There is a conflict of interest."},
+  {word:"conform",meaning:"符合；遵守",example:"You must conform to the rules."},
+  {word:"consent",meaning:"同意",example:"We need your written consent."},
+  {word:"consequence",meaning:"后果",example:"Consider the consequences."},
+  {word:"considerable",meaning:"相当大的",example:"A considerable amount of work remains."},
+  {word:"consist",meaning:"由…组成",example:"The team consists of five members."},
+  {word:"constant",meaning:"持续的；不变的",example:"The noise was constant."},
+  {word:"constitute",meaning:"构成",example:"These items constitute the core."},
+  {word:"construct",meaning:"建造",example:"They will construct a new bridge."},
+  {word:"consume",meaning:"消费；消耗",example:"We consume a lot of energy."},
+  {word:"contact",meaning:"联系",example:"Please contact us for details."},
+  {word:"contemporary",meaning:"当代的",example:"Contemporary art can be challenging."},
+  {word:"context",meaning:"上下文；背景",example:"You need to understand the context."},
+  {word:"contract",meaning:"合同；收缩",example:"Please sign the contract."},
+  {word:"contradict",meaning:"矛盾；反驳",example:"Your statement contradicts the facts."},
+  {word:"contrary",meaning:"相反的",example:"Contrary to popular belief, it works."},
+  {word:"contrast",meaning:"对比",example:"There is a stark contrast."},
+  {word:"contribute",meaning:"贡献；投稿",example:"Everyone should contribute."},
+  {word:"controversy",meaning:"争议",example:"The decision caused controversy."},
+  {word:"convene",meaning:"召集",example:"The committee will convene next week."},
+  {word:"converse",meaning:"交谈；相反的",example:"They converse in French."},
+  {word:"convince",meaning:"说服",example:"Convince me with evidence."},
+  {word:"cooperate",meaning:"合作",example:"We must cooperate to succeed."},
+  {word:"coordinate",meaning:"协调",example:"We need to coordinate our efforts."},
+  {word:"core",meaning:"核心",example:"This is the core issue."},
+  {word:"corporate",meaning:"公司的",example:"Corporate culture is important."},
+  {word:"correspond",meaning:"对应；通信",example:"The results correspond with predictions."},
+  {word:"crucial",meaning:"关键的",example:"This is a crucial decision."},
+  {word:"culture",meaning:"文化",example:"Culture shapes our values."},
+  {word:"currency",meaning:"货币；流通",example:"The local currency is the euro."},
+  {word:"cycle",meaning:"循环",example:"The cycle repeats every year."},
+  {word:"data",meaning:"数据",example:"The data supports our hypothesis."},
+  {word:"debate",meaning:"辩论",example:"The debate continues."},
+  {word:"decade",meaning:"十年",example:"Over the past decade, technology evolved."},
+  {word:"decline",meaning:"下降；拒绝",example:"The population is in decline."},
+  {word:"definite",meaning:"明确的",example:"We need a definite answer."},
+  {word:"demonstrate",meaning:"展示；证明",example:"Let me demonstrate how it works."},
+  {word:"denote",meaning:"表示",example:"The symbol denotes danger."},
+  {word:"deny",meaning:"否认",example:"He denied the accusation."},
+  {word:"depict",meaning:"描绘",example:"The painting depicts a landscape."},
+  {word:"derive",meaning:"源自；获得",example:"The word derives from Latin."},
+  {word:"design",meaning:"设计",example:"The design is innovative."},
+  {word:"despite",meaning:"尽管",example:"Despite the rain, we went out."},
+  {word:"detect",meaning:"检测；发现",example:"The sensor can detect movement."},
+  {word:"deviate",meaning:"偏离",example:"Don't deviate from the plan."},
+  {word:"device",meaning:"设备",example:"This device is very useful."},
+  {word:"devote",meaning:"致力于",example:"She devotes time to volunteering."},
+  {word:"dimension",meaning:"维度；尺寸",example:"Consider all dimensions of the problem."},
+  {word:"diminish",meaning:"减少",example:"The pain will diminish over time."},
+  {word:"discrete",meaning:"离散的；分开的",example:"The process has discrete steps."},
+  {word:"discriminate",meaning:"歧视；区分",example:"Don't discriminate against others."},
+  {word:"displace",meaning:"取代；使流离失所",example:"Technology may displace workers."},
+  {word:"display",meaning:"展示；显示",example:"The display is impressive."},
+  {word:"dispose",meaning:"处理；安排",example:"Dispose of waste properly."},
+  {word:"distinct",meaning:"明显的；不同的",example:"There are two distinct categories."},
+  {word:"distort",meaning:"扭曲",example:"The mirror distorts the image."},
+  {word:"distribute",meaning:"分发；分布",example:"We distribute goods nationwide."},
+  {word:"diverse",meaning:"多样的",example:"The city has a diverse population."},
+  {word:"document",meaning:"文件；记录",example:"Please read the document carefully."},
+  {word:"domain",meaning:"领域",example:"This is outside my domain."},
+  {word:"domestic",meaning:"国内的；家庭的",example:"Domestic flights are cheaper."},
+  {word:"dominate",meaning:"主导",example:"One company dominates the market."},
+  {word:"draft",meaning:"草稿；起草",example:"This is just a draft."},
+  {word:"drama",meaning:"戏剧",example:"The drama was well-received."},
+  {word:"duration",meaning:"持续时间",example:"The duration is two hours."},
+  {word:"dynamic",meaning:"动态的",example:"The market is very dynamic."},
+  {word:"economy",meaning:"经济",example:"The economy is growing."},
+  {word:"edition",meaning:"版本",example:"This is the latest edition."},
+  {word:"eliminate",meaning:"消除",example:"We must eliminate errors."},
+  {word:"emerge",meaning:"出现",example:"New trends emerge every year."},
+  {word:"emphasis",meaning:"强调",example:"Put emphasis on quality."},
+  {word:"empirical",meaning:"经验主义的",example:"Empirical evidence is needed."},
+  {word:"enable",meaning:"使能够",example:"Technology enables remote work."},
+  {word:"encounter",meaning:"遇到",example:"We may encounter difficulties."},
+  {word:"energy",meaning:"能量；精力",example:"Renewable energy is the future."},
+  {word:"enormous",meaning:"巨大的",example:"The cost was enormous."},
+  {word:"ensure",meaning:"确保",example:"Ensure all doors are locked."},
+  {word:"entity",meaning:"实体",example:"The company is a legal entity."},
+  {word:"environment",meaning:"环境",example:"Protect the environment."},
+  {word:"equip",meaning:"装备",example:"Equip yourself with knowledge."},
+  {word:"equivalent",meaning:"等价的",example:"One mile is equivalent to 1.6 km."},
+  {word:"erode",meaning:"侵蚀",example:"Water can erode rocks over time."},
+  {word:"establish",meaning:"建立",example:"We need to establish rules."},
+  {word:"estate",meaning:"房产；庄园",example:"Real estate prices are rising."},
+  {word:"estimate",meaning:"估计",example:"Can you estimate the cost?"},
+  {word:"evaluate",meaning:"评估",example:"We evaluate performance annually."},
+  {word:"eventual",meaning:"最终的",example:"The eventual outcome was positive."},
+  {word:"evidence",meaning:"证据",example:"There is no evidence to support that."},
+  {word:"evolve",meaning:"进化；发展",example:"Species evolve over time."},
+  {word:"exceed",meaning:"超过",example:"Do not exceed the speed limit."},
+  {word:"exclude",meaning:"排除",example:"We cannot exclude that possibility."},
+  {word:"exhibit",meaning:"展示；展览",example:"The museum will exhibit the paintings."},
+  {word:"expand",meaning:"扩展",example:"The company plans to expand."},
+  {word:"expert",meaning:"专家",example:"She is an expert in her field."},
+  {word:"exploit",meaning:"利用；开发",example:"We should exploit this opportunity."},
+  {word:"export",meaning:"出口",example:"The country exports oil."},
+  {word:"expose",meaning:"暴露",example:"Don't expose it to sunlight."},
+  {word:"external",meaning:"外部的",example:"External factors play a role."},
+  {word:"extract",meaning:"提取；摘录",example:"Extract the key points from the text."},
+  {word:"facilitate",meaning:"促进",example:"Technology facilitates communication."},
+  {word:"factor",meaning:"因素",example:"Cost is a key factor."},
+  {word:"feature",meaning:"特征；特色",example:"The main feature is the camera."},
+  {word:"federal",meaning:"联邦的",example:"Federal law applies here."},
+  {word:"finance",meaning:"金融；财务",example:"She works in finance."},
+  {word:"flexible",meaning:"灵活的",example:"We offer flexible working hours."},
+  {word:"fluctuate",meaning:"波动",example:"Prices fluctuate daily."},
+  {word:"focus",meaning:"焦点；专注",example:"Focus on what matters."},
+  {word:"format",meaning:"格式",example:"Please use the correct format."},
+  {word:"formula",meaning:"公式",example:"Apply the formula correctly."},
+  {word:"forthcoming",meaning:"即将到来的",example:"The forthcoming election is important."},
+  {word:"foundation",meaning:"基础",example:"A strong foundation is essential."},
+  {word:"framework",meaning:"框架",example:"We need a legal framework."},
+  {word:"function",meaning:"功能；函数",example:"What is the function of this?"},
+  {word:"fundamental",meaning:"基本的",example:"This is a fundamental principle."},
+  {word:"gender",meaning:"性别",example:"Gender equality is important."},
+  {word:"generate",meaning:"产生",example:"The project will generate revenue."},
+  {word:"global",meaning:"全球的",example:"Global warming is a concern."},
+  {word:"grant",meaning:"授予；拨款",example:"They received a research grant."},
+  {word:"guarantee",meaning:"保证",example:"We guarantee satisfaction."},
+  {word:"guideline",meaning:"指导方针",example:"Follow the guidelines carefully."},
+  {word:"hence",meaning:"因此",example:"The cost is high, hence the delay."},
+  {word:"hypothesis",meaning:"假设",example:"Test your hypothesis."},
+  {word:"identical",meaning:"相同的",example:"The two samples are identical."},
+  {word:"identify",meaning:"识别；确定",example:"Identify the key issues."},
+  {word:"ignore",meaning:"忽视",example:"Don't ignore the warning signs."},
+  {word:"illustrate",meaning:"说明；阐明",example:"Let me illustrate with an example."},
+  {word:"image",meaning:"形象；图像",example:"The company wants to improve its image."},
+  {word:"immigrate",meaning:"移民",example:"Many people immigrate for work."},
+  {word:"impact",meaning:"影响；冲击",example:"The impact was significant."},
+  {word:"implement",meaning:"实施",example:"We need to implement the plan."},
+  {word:"implicate",meaning:"牵连；暗示",example:"The evidence implicates him."},
+  {word:"imply",meaning:"暗示",example:"What does this imply?"},
+  {word:"impose",meaning:"强加；征收",example:"They impose strict rules."},
+  {word:"incentive",meaning:"激励",example:"Bonuses provide an incentive."},
+  {word:"incidence",meaning:"发生率",example:"The incidence of disease is falling."},
+  {word:"incline",meaning:"倾向",example:"I incline towards the second option."},
+  {word:"income",meaning:"收入",example:"Her income has doubled."},
+  {word:"incorporate",meaning:"包含；合并",example:"Incorporate feedback into the design."},
+  {word:"indicate",meaning:"表明",example:"The results indicate success."},
+  {word:"individual",meaning:"个人；个体",example:"Each individual is unique."},
+  {word:"induce",meaning:"引起；诱导",example:"The drug may induce drowsiness."},
+  {word:"inevitable",meaning:"不可避免的",example:"Change is inevitable."},
+  {word:"infer",meaning:"推断",example:"What can we infer from this?"},
+  {word:"infrastructure",meaning:"基础设施",example:"Infrastructure needs investment."},
+  {word:"inherent",meaning:"固有的",example:"There are inherent risks."},
+  {word:"inhibit",meaning:"抑制",example:"Fear can inhibit progress."},
+  {word:"initial",meaning:"最初的",example:"The initial phase is complete."},
+  {word:"initiate",meaning:"开始；发起",example:"Let's initiate the project."},
+  {word:"innovate",meaning:"创新",example:"We must innovate to survive."},
+  {word:"insert",meaning:"插入",example:"Insert the card here."},
+  {word:"insight",meaning:"洞察",example:"She has great insight."},
+  {word:"inspect",meaning:"检查",example:"Inspect the equipment regularly."},
+  {word:"instance",meaning:"例子；实例",example:"For instance, consider this case."},
+  {word:"institute",meaning:"机构；学院",example:"The research institute published findings."},
+  {word:"integrate",meaning:"整合",example:"Integrate the new system smoothly."},
+  {word:"intense",meaning:"强烈的",example:"The heat was intense."},
+  {word:"interact",meaning:"互动",example:"Children learn to interact socially."},
+  {word:"intermediate",meaning:"中级的",example:"This is an intermediate course."},
+  {word:"internal",meaning:"内部的",example:"Internal communication is key."},
+  {word:"interpret",meaning:"解释；口译",example:"How do you interpret this?"},
+  {word:"interval",meaning:"间隔",example:"Take breaks at regular intervals."},
+  {word:"intervene",meaning:"干预",example:"The government may intervene."},
+  {word:"intrinsic",meaning:"本质的；内在的",example:"It has intrinsic value."},
+  {word:"invest",meaning:"投资",example:"Invest in your future."},
+  {word:"investigate",meaning:"调查",example:"We will investigate the matter."},
+  {word:"invoke",meaning:"调用；援引",example:"They invoke the law to justify action."},
+  {word:"involve",meaning:"涉及",example:"The job involves travel."},
+  {word:"isolate",meaning:"隔离",example:"Isolate the problem first."},
+  {word:"issue",meaning:"问题；发行",example:"This is a serious issue."},
+  {word:"item",meaning:"项目；物品",example:"Each item is carefully checked."},
+  {word:"journal",meaning:"期刊；日志",example:"The journal publishes monthly."},
+  {word:"justify",meaning:"证明…正当",example:"How do you justify this decision?"},
+  {word:"label",meaning:"标签",example:"Read the label carefully."},
+  {word:"labour",meaning:"劳动；劳动力",example:"Labour costs are rising."},
+  {word:"layer",meaning:"层",example:"Add another layer of paint."},
+  {word:"lecture",meaning:"讲座",example:"The lecture was informative."},
+  {word:"legal",meaning:"法律的",example:"Seek legal advice."},
+  {word:"legislate",meaning:"立法",example:"Parliament will legislate on this."},
+  {word:"liberal",meaning:"自由的；开明的",example:"She holds liberal views."},
+  {word:"likewise",meaning:"同样地",example:"Likewise, we should consider cost."},
+  {word:"link",meaning:"链接；联系",example:"There is a link between diet and health."},
+  {word:"locate",meaning:"定位；位于",example:"Locate the nearest exit."},
+  {word:"logic",meaning:"逻辑",example:"Your logic is sound."},
+  {word:"maintain",meaning:"维持",example:"Maintain a healthy lifestyle."},
+  {word:"major",meaning:"主要的；专业",example:"This is a major achievement."},
+  {word:"manipulate",meaning:"操纵；操作",example:"Don't manipulate the data."},
+  {word:"manual",meaning:"手册；手动的",example:"Read the manual first."},
+  {word:"margin",meaning:"边缘；利润",example:"The profit margin is thin."},
+  {word:"mature",meaning:"成熟的",example:"She is very mature for her age."},
+  {word:"maximise",meaning:"最大化",example:"We aim to maximise efficiency."},
+  {word:"mechanism",meaning:"机制",example:"The mechanism is complex."},
+  {word:"medium",meaning:"媒介；中等的",example:"Television is a powerful medium."},
+  {word:"mental",meaning:"精神的",example:"Mental health is important."},
+  {word:"method",meaning:"方法",example:"What method do you use?"},
+  {word:"migrate",meaning:"迁移",example:"Birds migrate south in winter."},
+  {word:"military",meaning:"军事的",example:"Military spending has increased."},
+  {word:"minimal",meaning:"最小的",example:"The damage was minimal."},
+  {word:"minimise",meaning:"最小化",example:"Minimise the risk."},
+  {word:"minimum",meaning:"最小值",example:"The minimum age is 18."},
+  {word:"ministry",meaning:"部；部门",example:"The Ministry of Education."},
+  {word:"minor",meaning:"次要的；未成年",example:"It's a minor issue."},
+  {word:"mode",meaning:"模式",example:"Switch to silent mode."},
+  {word:"modify",meaning:"修改",example:"We need to modify the plan."},
+  {word:"monitor",meaning:"监控；显示器",example:"Monitor the situation closely."},
+  {word:"motive",meaning:"动机",example:"What is your motive?"},
+  {word:"mutual",meaning:"相互的",example:"Mutual respect is essential."},
+  {word:"negate",meaning:"否定",example:"This does not negate the findings."},
+  {word:"network",meaning:"网络",example:"Build a professional network."},
+  {word:"neutral",meaning:"中立的",example:"Switzerland remained neutral."},
+  {word:"nevertheless",meaning:"然而",example:"Nevertheless, we continued."},
+  {word:"norm",meaning:"规范；常态",example:"This is the norm in many countries."},
+  {word:"notion",meaning:"概念；观念",example:"I reject that notion."},
+  {word:"notwithstanding",meaning:"尽管",example:"Notwithstanding the risks, we proceed."},
+  {word:"nuclear",meaning:"核的",example:"Nuclear energy is controversial."},
+  {word:"objective",meaning:"目标；客观的",example:"Our objective is clear."},
+  {word:"obtain",meaning:"获得",example:"How can I obtain a visa?"},
+  {word:"obvious",meaning:"明显的",example:"The answer is obvious."},
+  {word:"occupy",meaning:"占据",example:"The task will occupy most of the day."},
+  {word:"occur",meaning:"发生",example:"When did this occur?"},
+  {word:"odd",meaning:"奇怪的；奇数的",example:"That's an odd coincidence."},
+  {word:"offset",meaning:"抵消",example:"Gains offset the losses."},
+  {word:"ongoing",meaning:"持续的",example:"The investigation is ongoing."},
+  {word:"option",meaning:"选择",example:"What options do we have?"},
+  {word:"orient",meaning:"定向；面向",example:"We are market-oriented."},
+  {word:"outcome",meaning:"结果",example:"The outcome was unexpected."},
+  {word:"output",meaning:"输出；产量",example:"Output has doubled."},
+  {word:"overall",meaning:"总体的",example:"Overall, it was a success."},
+  {word:"overlap",meaning:"重叠",example:"The two roles overlap."},
+  {word:"overseas",meaning:"海外",example:"She works overseas."},
+  {word:"panel",meaning:"面板；专家组",example:"A panel of experts reviewed it."},
+  {word:"paradigm",meaning:"范式",example:"A paradigm shift is needed."},
+  {word:"parallel",meaning:"平行的",example:"The roads run parallel."},
+  {word:"parameter",meaning:"参数",example:"Set the parameters correctly."},
+  {word:"participate",meaning:"参与",example:"Everyone should participate."},
+  {word:"passive",meaning:"被动的",example:"Don't be passive about your career."},
+  {word:"perceive",meaning:"感知；认为",example:"How do you perceive the situation?"},
+  {word:"period",meaning:"时期",example:"This period was prosperous."},
+  {word:"persist",meaning:"坚持；持续",example:"If symptoms persist, see a doctor."},
+  {word:"perspective",meaning:"观点；视角",example:"From my perspective, it's fine."},
+  {word:"phenomenon",meaning:"现象",example:"This is a rare phenomenon."},
+  {word:"philosophy",meaning:"哲学",example:"What is your philosophy of life?"},
+  {word:"physical",meaning:"身体的；物理的",example:"Physical exercise is important."},
+  {word:"policy",meaning:"政策",example:"The new policy takes effect today."},
+  {word:"portion",meaning:"部分",example:"A large portion was wasted."},
+  {word:"pose",meaning:"构成；摆姿势",example:"This poses a problem."},
+  {word:"positive",meaning:"积极的；正面的",example:"Stay positive!"},
+  {word:"potential",meaning:"潜力；潜在的",example:"She has great potential."},
+  {word:"practitioner",meaning:"从业者",example:"A medical practitioner."},
+  {word:"precede",meaning:"先于",example:"The speech preceded the dinner."},
+  {word:"predict",meaning:"预测",example:"Can you predict the outcome?"},
+  {word:"predominant",meaning:"主要的",example:"The predominant view is optimistic."},
+  {word:"preliminary",meaning:"初步的",example:"Preliminary results are promising."},
+  {word:"presume",meaning:"假定",example:"I presume you're right."},
+  {word:"previous",meaning:"之前的",example:"In my previous job..."},
+  {word:"primary",meaning:"主要的；初级的",example:"Our primary goal is growth."},
+  {word:"principal",meaning:"主要的；校长",example:"The principal reason is cost."},
+  {word:"principle",meaning:"原则",example:"Stick to your principles."},
+  {word:"prior",meaning:"先前的",example:"Prior experience is required."},
+  {word:"priority",meaning:"优先级",example:"Safety is our top priority."},
+  {word:"proceed",meaning:"继续；进行",example:"Let's proceed with the plan."},
+  {word:"process",meaning:"过程；处理",example:"The process takes time."},
+  {word:"professional",meaning:"专业的",example:"She is very professional."},
+  {word:"prohibit",meaning:"禁止",example:"Smoking is prohibited."},
+  {word:"project",meaning:"项目；投射",example:"The project is on schedule."},
+  {word:"promote",meaning:"促进；推广",example:"We promote healthy living."},
+  {word:"proportion",meaning:"比例",example:"A large proportion agreed."},
+  {word:"prospect",meaning:"前景",example:"The prospects are good."},
+  {word:"protocol",meaning:"协议；礼仪",example:"Follow the protocol."},
+  {word:"psychology",meaning:"心理学",example:"Psychology helps us understand behavior."},
+  {word:"publication",meaning:"出版物",example:"The publication date is next month."},
+  {word:"publish",meaning:"出版；发布",example:"We publish monthly."},
+  {word:"purchase",meaning:"购买",example:"I want to purchase this."},
+  {word:"pursue",meaning:"追求",example:"Pursue your dreams."},
+  {word:"qualitative",meaning:"定性的",example:"Qualitative research is valuable."},
+  {word:"quote",meaning:"引用",example:"Can I quote you on that?"},
+  {word:"radical",meaning:"激进的；根本的",example:"A radical change is needed."},
+  {word:"random",meaning:"随机的",example:"A random sample was selected."},
+  {word:"range",meaning:"范围",example:"A wide range of products."},
+  {word:"ratio",meaning:"比率",example:"The ratio is 2:1."},
+  {word:"rational",meaning:"理性的",example:"Make a rational decision."},
+  {word:"react",meaning:"反应",example:"How did she react?"},
+  {word:"recover",meaning:"恢复",example:"It takes time to recover."},
+  {word:"refine",meaning:"精炼；改进",example:"Refine your technique."},
+  {word:"regime",meaning:"政体；制度",example:"The old regime collapsed."},
+  {word:"region",meaning:"地区",example:"The northern region is cold."},
+  {word:"register",meaning:"注册",example:"Please register online."},
+  {word:"regulate",meaning:"调节；管理",example:"Laws regulate this industry."},
+  {word:"reinforce",meaning:"加强",example:"Reinforce the message."},
+  {word:"reject",meaning:"拒绝",example:"They rejected the proposal."},
+  {word:"relax",meaning:"放松",example:"Try to relax."},
+  {word:"release",meaning:"释放；发布",example:"The new version is released."},
+  {word:"relevant",meaning:"相关的",example:"Is this relevant?"},
+  {word:"reluctant",meaning:"不情愿的",example:"She was reluctant to go."},
+  {word:"rely",meaning:"依赖",example:"We rely on technology."},
+  {word:"remove",meaning:"移除",example:"Remove the obstacles."},
+  {word:"require",meaning:"需要",example:"This job requires patience."},
+  {word:"research",meaning:"研究",example:"Research shows it works."},
+  {word:"resident",meaning:"居民",example:"Local residents objected."},
+  {word:"resolve",meaning:"解决；决心",example:"We need to resolve this."},
+  {word:"resource",meaning:"资源",example:"Natural resources are limited."},
+  {word:"respond",meaning:"回应",example:"Please respond promptly."},
+  {word:"restore",meaning:"恢复",example:"Restore the system."},
+  {word:"restrict",meaning:"限制",example:"Access is restricted."},
+  {word:"retain",meaning:"保留",example:"Retain a copy for yourself."},
+  {word:"reveal",meaning:"揭示",example:"The report reveals new data."},
+  {word:"revenue",meaning:"收入；税收",example:"Revenue increased by 20%."},
+  {word:"reverse",meaning:"逆转；相反的",example:"The trend may reverse."},
+  {word:"revise",meaning:"修订",example:"Please revise the document."},
+  {word:"revolution",meaning:"革命",example:"The digital revolution changed everything."},
+  {word:"rigid",meaning:"僵硬的；严格的",example:"The rules are too rigid."},
+  {word:"role",meaning:"角色；作用",example:"What is your role?"},
+  {word:"route",meaning:"路线",example:"Take the shortest route."},
+  {word:"scenario",meaning:"情景；方案",example:"Consider the worst-case scenario."},
+  {word:"schedule",meaning:"时间表",example:"Check the schedule."},
+  {word:"scheme",meaning:"方案；计划",example:"A new scheme was launched."},
+  {word:"scope",meaning:"范围",example:"The scope is too broad."},
+  {word:"section",meaning:"部分",example:"Read section three."},
+  {word:"sector",meaning:"部门；行业",example:"The private sector is growing."},
+  {word:"secure",meaning:"安全的；获得",example:"Secure your belongings."},
+  {word:"seek",meaning:"寻找",example:"Seek professional help."},
+  {word:"select",meaning:"选择",example:"Select the best option."},
+  {word:"sequence",meaning:"顺序；序列",example:"Follow the correct sequence."},
+  {word:"shift",meaning:"转变；轮班",example:"A shift in attitude is needed."},
+  {word:"significant",meaning:"重要的",example:"A significant improvement."},
+  {word:"similar",meaning:"相似的",example:"The two cases are similar."},
+  {word:"simulate",meaning:"模拟",example:"We can simulate the process."},
+  {word:"site",meaning:"地点；网站",example:"Visit our web site."},
+  {word:"sole",meaning:"唯一的",example:"She is the sole owner."},
+  {word:"source",meaning:"来源",example:"Cite your sources."},
+  {word:"specific",meaning:"具体的",example:"Be more specific."},
+  {word:"sphere",meaning:"领域；球体",example:"In the political sphere."},
+  {word:"stable",meaning:"稳定的",example:"The economy is stable."},
+  {word:"statistic",meaning:"统计数字",example:"The statistics are alarming."},
+  {word:"status",meaning:"状态；地位",example:"Check the status of your order."},
+  {word:"strategy",meaning:"策略",example:"We need a new strategy."},
+  {word:"stress",meaning:"压力；强调",example:"Stress can affect health."},
+  {word:"structure",meaning:"结构",example:"The structure is sound."},
+  {word:"submit",meaning:"提交",example:"Submit your application."},
+  {word:"subordinate",meaning:"下属；次要的",example:"He has five subordinates."},
+  {word:"subsequent",meaning:"随后的",example:"Subsequent events proved him right."},
+  {word:"subsidy",meaning:"补贴",example:"The government provides subsidies."},
+  {word:"substitute",meaning:"替代品",example:"There is no substitute for experience."},
+  {word:"successor",meaning:"继任者",example:"She was named his successor."},
+  {word:"sufficient",meaning:"足够的",example:"Is this sufficient?"},
+  {word:"summary",meaning:"总结",example:"Write a brief summary."},
+  {word:"supplement",meaning:"补充",example:"Take vitamin supplements."},
+  {word:"survey",meaning:"调查",example:"Complete the survey."},
+  {word:"survive",meaning:"幸存",example:"Only a few survived."},
+  {word:"suspend",meaning:"暂停；悬挂",example:"The service was suspended."},
+  {word:"sustain",meaning:"维持；支撑",example:"Sustain the momentum."},
+  {word:"symbol",meaning:"象征；符号",example:"The dove is a symbol of peace."},
+  {word:"target",meaning:"目标",example:"We reached our target."},
+  {word:"task",meaning:"任务",example:"Complete this task first."},
+  {word:"team",meaning:"团队",example:"We work as a team."},
+  {word:"technique",meaning:"技术；技巧",example:"Learn proper technique."},
+  {word:"technology",meaning:"技术",example:"Technology is advancing rapidly."},
+  {word:"temporary",meaning:"临时的",example:"This is a temporary solution."},
+  {word:"tend",meaning:"倾向于",example:"People tend to forget."},
+  {word:"tense",meaning:"紧张的；时态",example:"The atmosphere was tense."},
+  {word:"terminate",meaning:"终止",example:"The contract was terminated."},
+  {word:"text",meaning:"文本",example:"Read the text carefully."},
+  {word:"theme",meaning:"主题",example:"What is the theme?"},
+  {word:"theory",meaning:"理论",example:"In theory, it should work."},
+  {word:"thesis",meaning:"论文；论点",example:"She defended her thesis."},
+  {word:"topic",meaning:"话题",example:"Choose a topic."},
+  {word:"trace",meaning:"追踪；痕迹",example:"Trace the origin."},
+  {word:"tradition",meaning:"传统",example:"It's a family tradition."},
+  {word:"transfer",meaning:"转移；调动",example:"Transfer the funds."},
+  {word:"transform",meaning:"转变",example:"Transform your life."},
+  {word:"transit",meaning:"运输；过境",example:"Goods are in transit."},
+  {word:"trend",meaning:"趋势",example:"This is a growing trend."},
+  {word:"trigger",meaning:"触发",example:"What triggered the reaction?"},
+  {word:"ultimate",meaning:"最终的",example:"The ultimate goal is peace."},
+  {word:"undergo",meaning:"经历",example:"She will undergo surgery."},
+  {word:"underlie",meaning:"构成…的基础",example:"What factors underlie this trend?"},
+  {word:"undertake",meaning:"承担",example:"We undertake this project willingly."},
+  {word:"uniform",meaning:"统一的；制服",example:"Uniform standards apply."},
+  {word:"unique",meaning:"独特的",example:"Each person is unique."},
+  {word:"utilise",meaning:"利用",example:"Utilise all available resources."},
+  {word:"valid",meaning:"有效的",example:"Is your passport valid?"},
+  {word:"vary",meaning:"变化",example:"Prices vary by region."},
+  {word:"vehicle",meaning:"车辆；媒介",example:"The vehicle broke down."},
+  {word:"version",meaning:"版本",example:"This is the latest version."},
+  {word:"via",meaning:"通过",example:"Send it via email."},
+  {word:"violate",meaning:"违反",example:"This violates the rules."},
+  {word:"virtual",meaning:"虚拟的",example:"Virtual meetings are common."},
+  {word:"visible",meaning:"可见的",example:"The stars are visible tonight."},
+  {word:"vision",meaning:"愿景；视力",example:"She has a clear vision."},
+  {word:"visual",meaning:"视觉的",example:"Visual aids help learning."},
+  {word:"volume",meaning:"音量；体积",example:"Turn down the volume."},
+  {word:"voluntary",meaning:"自愿的",example:"Participation is voluntary."},
+  {word:"welfare",meaning:"福利",example:"Animal welfare is important."},
+  {word:"whereas",meaning:"然而；鉴于",example:"She likes tea, whereas I prefer coffee."},
+  {word:"widespread",meaning:"广泛的",example:"There is widespread support."},
+  {word:"zone",meaning:"区域",example:"This is a no-parking zone."}
+];
+
+const EXAM_QUESTIONS=[
+  {title:"Cambridge IELTS 18 Test 1",type:"听力",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 1",type:"阅读",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 1",type:"写作",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 1",type:"口语",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 2",type:"听力",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 2",type:"阅读",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 3",type:"听力",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 18 Test 3",type:"阅读",source:"剑桥雅思18",year:"2024"},
+  {title:"Cambridge IELTS 19 Test 1",type:"听力",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 1",type:"阅读",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 1",type:"写作",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 1",type:"口语",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 2",type:"听力",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 2",type:"阅读",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 2",type:"写作",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 3",type:"听力",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 3",type:"阅读",source:"剑桥雅思19",year:"2025"},
+  {title:"Cambridge IELTS 19 Test 4",type:"听力",source:"剑桥雅思19",year:"2025"},
+  {title:"剑桥雅思真题精讲 2025",type:"阅读",source:"新东方",year:"2025"},
+  {title:"剑桥雅思真题精讲 2025",type:"写作",source:"新东方",year:"2025"},
+];
+
 /* 日期范围 */
 function last7(){const a=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(d.toISOString().slice(0,10))}return a}
 function lastN(n){const a=[];for(let i=n-1;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);a.push(d.toISOString().slice(0,10))}return a}
@@ -441,13 +971,11 @@ let currentPage='overview';
 function goPage(p){
   currentPage=p;
   $$('.page').forEach(el=>el.classList.toggle('active',el.id==='page-'+p));
-  $$('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
+  $$('.bottom-item').forEach(b=>b.classList.toggle('active',b.dataset.page===p));
   $('#pageTitle').textContent=PAGE_TITLE[p];
-  if(window.innerWidth<860)$('#sidebar').classList.remove('open');
   renderAll();
 }
-$$('.nav-item').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
-$('#menuToggle').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
+$$('.bottom-item').forEach(b=>b.addEventListener('click',()=>goPage(b.dataset.page)));
 
 /* 英语 tab */
 $$('.tab').forEach(t=>t.addEventListener('click',()=>{
@@ -456,6 +984,7 @@ $$('.tab').forEach(t=>t.addEventListener('click',()=>{
   $('#eng-words').classList.toggle('hidden',tab!=='words');
   $('#eng-study').classList.toggle('hidden',tab!=='study');
   $('#eng-practice').classList.toggle('hidden',tab!=='practice');
+  $('#eng-exam').classList.toggle('hidden',tab!=='exam');
   renderEnglish();
 }));
 
@@ -628,6 +1157,12 @@ $('#practiceForm').addEventListener('submit',e=>{
   db.practice.push({id:uid(),date:f.get('date'),title:f.get('title').trim(),type:f.get('type'),status:f.get('status'),note:f.get('note').trim()});
   save();e.target.reset();setTodayInputs();renderEnglish();toast('已添加练习');
 });
+$('#examNoteForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const f=new FormData(e.target);
+  db.examNotes.push({id:uid(),date:f.get('date'),title:f.get('title').trim(),status:f.get('status'),note:f.get('note').trim()});
+  save();e.target.reset();setTodayInputs();renderExam();toast('已保存笔记');
+});
 function renderEnglish(){
   // 单词
   const todayReview=db.words.filter(w=>w.nextReview<=today());
@@ -637,9 +1172,16 @@ function renderEnglish(){
       <button class="btn btn-sm btn-primary" onclick="reviewWord('${w.id}',true)">记得</button>
       <button class="btn btn-sm" onclick="reviewWord('${w.id}',false)">模糊</button></div>`).join('')}`
     :`<div class="today-count" style="color:#059669">✓ 今日无待复习单词</div>`;
+  // 自动注入雅思词汇（如果还没有）
+  const existingWords=db.words.map(w=>w.word.toLowerCase());
+  IELTS_WORDS.forEach(w=>{
+    if(!existingWords.includes(w.word.toLowerCase())){
+      db.words.push({id:uid(),word:w.word,meaning:w.meaning,example:w.example,createdAt:'2025-01-01',reviewStage:0,nextReview:'2025-01-02',source:'ielts'});
+    }
+  });
   const words=[...db.words].sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
   $('#wordList').innerHTML=words.length?words.map(w=>`
-    <li><div class="li-main"><div class="li-title">${esc(w.word)} <span style="color:var(--text-muted);font-weight:400">— ${esc(w.meaning)}</span></div>
+    <li>${w.source==='ielts'?'<span class="badge badge-cat" style="font-size:10px;padding:1px 6px">IELTS</span>':''}<div class="li-main"><div class="li-title">${esc(w.word)} <span style="color:var(--text-muted);font-weight:400">— ${esc(w.meaning)}</span></div>
     <div class="li-meta">添加：${w.createdAt} · 下次复习：${w.nextReview} · 第${w.reviewStage+1}轮</div></div>
     <button class="btn btn-danger" onclick="delItem('words','${w.id}')">删除</button></li>`).join('')
     :emptyHTML('单词库为空');
@@ -679,6 +1221,7 @@ function renderEnglish(){
       <div class="li-main"><div class="li-title">${esc(x.title)}</div><div class="li-meta">${x.date}${x.note?' · '+esc(x.note):''}</div></div>
       <button class="btn btn-danger" onclick="delItem('practice','${x.id}')">删除</button></li>`).join('')
     :emptyHTML('还没有练习记录');
+  renderExam();
 }
 function calcStreak(){
   const days=[...new Set(db.studyLog.map(x=>x.date))].sort().reverse();
@@ -691,6 +1234,17 @@ function calcStreak(){
 }
 
 /* ============ 总览 ============ */
+function renderExam(){
+  const noteMap={};
+  db.examNotes.forEach(n=>{const k=n.title+'|'+n.date;noteMap[k]=n});
+  const allNotes=[...db.examNotes].sort((a,b)=>b.date.localeCompare(a.date));
+  $('#examList').innerHTML=EXAM_QUESTIONS.map((q,i)=>{
+    const status=noteMap[q.title+'|'+q.date]?.status||'todo';
+    const note=noteMap[q.title+'|'+q.date]?.note||'';
+    return `<li><span class="badge badge-cat">${q.type}</span><span class="badge badge-status-${status}">${STATUS_LABEL[status]}</span>
+      <div class="li-main"><div class="li-title">${esc(q.title)}</div><div class="li-meta">${q.source} · ${q.year}${note?' · 笔记：'+esc(note):''}</div></div></li>`;
+  }).join('');
+}
 function renderOverview(){
   const todayD=db.diet.filter(x=>x.date===today());
   const todayCal=todayD.reduce((s,x)=>s+(x.calories||0),0);
