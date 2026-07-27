@@ -52,22 +52,22 @@ body{
 
 /* 侧边栏 - 深紫渐变 */
 .sidebar{
-  width:220px;background:linear-gradient(180deg,#5b21b6 0%,#6d28d9 50%,#7c3aed 100%);
+  width:220px;background:var(--card);border-right:1px solid var(--primary-100);
   padding:24px 0;position:fixed;height:100vh;display:flex;flex-direction:column;
-  z-index:10;border-right:none;
+  z-index:10;
 }
-.logo{padding:0 24px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#fff}
-.logo svg{width:28px;height:28px;color:#ddd6fe}
+.logo{padding:0 24px 24px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--primary-dark)}
+.logo svg{width:28px;height:28px;color:var(--primary)}
 .nav{flex:1;display:flex;flex-direction:column;gap:4px;padding:0 12px}
 .nav-item{
   display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:var(--radius-sm);
-  cursor:pointer;color:rgba(255,255,255,.7);font-size:14.5px;font-weight:500;transition:all .2s;
+  cursor:pointer;color:var(--text-muted);font-size:14.5px;font-weight:500;transition:all .2s;
   border:none;background:none;text-align:left;width:100%;
 }
-.nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
-.nav-item.active{background:rgba(255,255,255,.2);color:#fff;font-weight:600}
+.nav-item:hover{background:var(--primary-50);color:var(--primary)}
+.nav-item.active{background:var(--primary);color:#fff;font-weight:600}
 .nav-item svg{width:18px;height:18px;flex-shrink:0}
-.sidebar-foot{padding:16px 24px;font-size:12px;color:rgba(255,255,255,.45);border-top:1px solid rgba(255,255,255,.1)}
+.sidebar-foot{padding:16px 24px;font-size:12px;color:var(--text-muted);border-top:1px solid var(--primary-100)}
 
 /* 主区域 */
 .main{flex:1;margin-left:220px;padding:32px 40px;max-width:100%;overflow-x:hidden}
@@ -202,6 +202,23 @@ body{
   .stat-grid{grid-template-columns:1fr 1fr}
 }
 .hidden{display:none!important}
+
+/* 备份提醒弹窗 */
+.backup-modal-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(30,27,75,.5);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  backdrop-filter:blur(4px);
+}
+.backup-modal{
+  background:#fff;border-radius:var(--radius);padding:28px 24px 20px;
+  max-width:340px;width:90%;text-align:center;box-shadow:0 20px 50px rgba(124,58,237,.25);
+}
+.backup-modal .bm-icon{font-size:40px;margin-bottom:10px}
+.backup-modal h4{font-size:17px;font-weight:700;color:var(--primary-dark);margin-bottom:8px}
+.backup-modal p{font-size:13px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.backup-modal .bm-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.backup-modal .btn-secondary{background:var(--primary-50);color:var(--primary-dark);border:1px solid var(--primary-200)}
+.backup-modal .btn-secondary:hover{background:var(--primary-100)}
 </style>
 </head>
 <body>
@@ -721,6 +738,39 @@ function renderAll(){
 $('#todayDate').textContent=new Date().toLocaleDateString('zh-CN',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
 setTodayInputs();
 renderAll();
+
+/* ============ 备份提醒 ============ */
+(function(){
+  const BACKUP_KEY='dashboard_last_backup';
+  const DAYS_BETWEEN=7;
+  const lastBackup=localStorage.getItem(BACKUP_KEY);
+  const now=today();
+  if(!lastBackup || daysDiff(lastBackup,now)>=DAYS_BETWEEN){
+    setTimeout(()=>showBackupModal(),1000);
+  }
+  function daysDiff(a,b){return Math.floor((new Date(b)-new Date(a))/86400000)}
+  function showBackupModal(){
+    const ov=document.createElement('div');ov.className='backup-modal-overlay';
+    ov.innerHTML=`<div class="backup-modal">
+      <div class="bm-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M20 16.2A4.5 4.5 0 0 0 17.5 8h-1.8A7 7 0 1 0 4 14.9"/><path d="M12 12v9M9 18l3 3 3-3"/></svg></div>
+      <h4>数据备份提醒</h4>
+      <p>你已经${lastBackup?'<b>'+(daysDiff(lastBackup,now))+'天</b>没有备份了':'<b>还没有备份过</b>'}，建议导出数据以防丢失。</p>
+      <div class="bm-actions">
+        <button class="btn btn-primary" id="bmExport">立即导出</button>
+        <button class="btn btn-secondary" id="bmSkip">跳过</button>
+      </div>
+    </div>`;
+    document.body.appendChild(ov);
+    document.getElementById('bmExport').addEventListener('click',()=>{
+      ov.remove();localStorage.setItem(BACKUP_KEY,now);
+      document.getElementById('btnExport').click();
+    });
+    document.getElementById('bmSkip').addEventListener('click',()=>{
+      ov.remove();localStorage.setItem(BACKUP_KEY,now);
+    });
+    ov.addEventListener('click',e=>{if(e.target===ov){ov.remove();localStorage.setItem(BACKUP_KEY,now)}});
+  }
+})();
 
 // 注册 Service Worker（离线缓存支持）
 if('serviceWorker' in navigator){
